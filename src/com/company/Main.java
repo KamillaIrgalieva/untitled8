@@ -1,116 +1,87 @@
 package com.company;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class Main {
+
+    public static void saveGame() {
+        try (FileOutputStream fos = new FileOutputStream("C://Games//savegames//save.dat")) {
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(new GameProgress(100, 1, 1, 32.1));
+            oos.writeObject(new GameProgress(90, 2, 2, 50));
+            oos.writeObject(new GameProgress(80, 3, 3, 77));
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    public static String createDir(String address, String name) {
+        File dir = new File(address);
+        if (dir.mkdir()) {
+            return " папка " + name + " - создана;";
+        }
+        return " не создана;";
+    }
+
+    public static String createFile(String address, String name) {
+        File fileMain = new File(address);
+        try {
+            if (fileMain.createNewFile()) {
+                return " файл " + name + " - создан;";
+            }
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return " не создан;";
+    }
+
+    public static void zipFiles(String zipAddress, String objectAddress, String name) {
+        try (ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(zipAddress))) {
+            // zip - создали архив
+            FileInputStream fis = new FileInputStream(objectAddress);
+            ZipEntry entry = new ZipEntry(name);
+            zip.putNextEntry(entry);
+            byte[] buffer = new byte[fis.available()];
+            //считать упаковываемый файл с помощью метода read()
+            fis.read(buffer);
+            //записать его с помощью метода write()
+            zip.write(buffer);
+            //закрываем поток
+            zip.closeEntry();
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+
+    }
 
     public static void main(String[] args) {
 
         StringBuilder text = new StringBuilder();
 
-        File dir = new File("C://Games");
-        if (dir.mkdir()) {
-            text.append("папка Games - создана;");
-            System.out.println("папка Games - создана");
-        }
-
-
-        File dirSrc = new File("C://Games", "src");
-        if (dirSrc.mkdir()) {
-            text.append(" папка src - создана;");
-            System.out.println("папка src - создана");
-        }
-
-
-        File dirRes = new File("C://Games", "res");
-        if (dirRes.mkdir()) {
-            text.append(" папка res - создана;");
-            System.out.println("папка res - создана");
-        }
-
-
-        File dirSavegames = new File("C://Games", "savegames");
-        if (dirSavegames.mkdir()) {
-            text.append(" папка savegames - создана;");
-            System.out.println("папка savegames - создана");
-        }
-        ;
-
-        File dirTemp = new File("C://Games", "temp");
-        if (dirTemp.mkdir()) {
-            text.append(" папка temp - создана;");
-            System.out.println("папка temp - создана");
-        }
-
-
-        File dirMain = new File("C://Games//src", "main");
-        if (dirMain.mkdir()) {
-            text.append(" папка main - создана;");
-            System.out.println("папка main - создана");
-        }
-
-
-        File dirTest = new File("C://Games//src", "test");
-        if (dirTest.mkdir()) {
-            text.append(" папка test - создана;");
-            System.out.println("папка test - создана");
-        }
-
-
-        File fileMain = new File("C://Games//src//main", "Main.java");
-        try {
-            if (fileMain.createNewFile()) {
-                text.append(" файл Main.java - создан;");
-                System.out.println("файл Main.java - создан");
-            }
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
-
-        File fileUtils = new File("C://Games//src//main//Utils.java");
-        try {
-            if (fileUtils.createNewFile()) {
-                text.append(" файл Utils.java - создан;");
-                System.out.println("файл Utils.java - создан");
-            }
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
-
-        File dirDrawables = new File("C://Games//res//drawables");
-        if (dirDrawables.mkdir()) {
-            text.append(" папка drawables - создана;");
-            System.out.println("папка drawables - создана");
-        }
-
-        File dirVectors = new File("C://Games//res//vectors");
-        if (dirVectors.mkdir()) {
-            text.append(" папка vectors - создана;");
-            System.out.println("папка vectors - создана");
-        }
-
-        File dirIcons = new File("C://Games//res//icons");
-        if (dirIcons.mkdir()) {
-            text.append(" папка icons - создана;");
-            System.out.println("папка icons - создана");
-        }
-
-        File fileTemp = new File("C://Games//temp//temp.txt");
-        try {
-            if (fileTemp.createNewFile()) {
-                text.append(" файл temp.txt - создан;");
-                System.out.println("файл temp.txt - создан");
-            }
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
+        text.append(createDir("C://Games", "Games"));
+        text.append(createDir("C://Games//src", "src"));
+        text.append(createDir("C://Games//res", "res"));
+        text.append(createDir("C://Games//savegames", "savegames"));
+        text.append(createDir("C://Games//temp", "temp"));
+        text.append(createDir("C://Games//src//main", "main"));
+        text.append(createDir("C://Games//src//test", "test"));
+        text.append(createFile("C://Games//src//main//Main.java", "Main.java"));
+        text.append(createFile("C://Games//src//main//Utils.java", "Utils.java"));
+        text.append(createDir("C://Games//res//drawables", "drawables"));
+        text.append(createDir("C://Games//res//vectors", "vectors"));
+        text.append(createDir("C://Games//res//icons", "icons"));
+        text.append(createFile("C://Games//temp//temp.txt", "temp.txt"));
 
         try (FileWriter writer = new FileWriter("C://Games//temp//temp.txt", false)) {
             writer.append(text);
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
+
+        saveGame();
+
+        zipFiles("C://Games//savegames//save.zip", "C://Games//savegames//save.dat", "packed_save.dat");
     }
 }
